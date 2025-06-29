@@ -44,7 +44,7 @@ form.addEventListener('submit', async e => {
     if (data.hits.length === 0) {
       iziToast.error({
         title: 'Error',
-        message: 'Failed to load images',
+        message: 'No images found for this query',
         position: 'topRight',
       });
       input.select();
@@ -54,9 +54,17 @@ form.addEventListener('submit', async e => {
     createGallery(data.hits);
     input.value = '';
 
-    if (page * per_page < totalHits) {
+    
+    if (data.hits.length < per_page || totalHits <= per_page) {
+      iziToast.info({
+        message: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
+      });
+      hideLoadMoreButton();
+    } else {
       showLoadMoreButton();
     }
+
   } catch {
     iziToast.error({
       title: 'Error',
@@ -64,9 +72,7 @@ form.addEventListener('submit', async e => {
       position: 'topRight',
     });
   } finally {
-    setTimeout(() => {
-      hideLoader();
-    }, 500);
+    hideLoader();
   }
 });
 
@@ -88,16 +94,17 @@ loadMoreBtn.addEventListener('click', async () => {
       behavior: 'smooth',
     });
 
-    if (page * per_page >= totalHits) {
+    
+    if (page * per_page >= totalHits || data.hits.length < per_page) {
       iziToast.info({
         message: "We're sorry, but you've reached the end of search results.",
         position: 'topRight',
       });
+      hideLoadMoreButton();
     } else {
-      setTimeout(() => {
-        showLoadMoreButton();
-      }, 500);
+      showLoadMoreButton();
     }
+
   } catch {
     iziToast.error({
       title: 'Error',
@@ -105,8 +112,6 @@ loadMoreBtn.addEventListener('click', async () => {
       position: 'topRight',
     });
   } finally {
-    setTimeout(() => {
-      hideLoader();
-    }, 500);
+    hideLoader();
   }
 });
